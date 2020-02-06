@@ -1,4 +1,5 @@
 from colorama import init, Fore, Back, Style
+from copy import deepcopy
 import math
 
 fieldSizeX = 5
@@ -68,6 +69,11 @@ def fieldInBoard(x, y):
     else:
         return True
 
+def noPreviewMarkers(board):
+    for i, line in enumerate(board):
+        for j, field in enumerate(line):
+            board[i][j] = field.replace(previewMarker, "")
+
 def quantumMove(board, xFrom, yFrom, xTo = -1, yTo = -1, preview = False):
     piece = board[yFrom][xFrom]
     newPositions = []
@@ -77,9 +83,7 @@ def quantumMove(board, xFrom, yFrom, xTo = -1, yTo = -1, preview = False):
     elif blackPlayerColor in piece:
         pieceColor = blackPlayerColor
 
-    for i,line in enumerate(board):
-        for j,field in enumerate(line):
-            board[i][j] = field.replace(previewMarker, "")
+    noPreviewMarkers(board)
 
     if "P" in piece:
         if pieceColor == whitePlayerColor:
@@ -140,7 +144,6 @@ def quantumMove(board, xFrom, yFrom, xTo = -1, yTo = -1, preview = False):
     elif "K" in piece:
         moves = [[0, 1], [0, -1], [1, 1], [1, 0], [1, -1], [-1, 1], [-1, 0], [-1, -1]]
         possibleMoves = []
-        userMove = [xTo - xFrom, yTo - yFrom]
         for move in moves:
             nextX = xFrom + move[0]
             nextY = yFrom + move[1]
@@ -150,23 +153,69 @@ def quantumMove(board, xFrom, yFrom, xTo = -1, yTo = -1, preview = False):
                         newPositions.append([nextY, nextX])
                     else:
                         possibleMoves.append([nextY, nextX])
-        if xTo >= 0 and yTo >= 0:
-            if userMove in moves:
-                if fieldInBoard(xTo, yTo):
-                    if board[yTo][xTo] == fieldEmpty or pieceColor not in board[yTo][xTo]:
-                        newPositions.append([yTo, xTo])
-        elif not preview:
-            if len(possibleMoves) == 1:
+        if not preview:
+            if [yTo, xTo] in possibleMoves:
+                newPositions.append([yTo, xTo])
+            elif len(possibleMoves) == 1:
                 newPositions.append(possibleMoves[0])
 
+    check = False
     if newPositions:
         for position in newPositions:
             if preview:
                 board[position[0]][position[1]] += previewMarker
+                if "K" in board[position[0]][position[1]]:
+                    check = True
             else:
                 board[position[0]][position[1]] = piece
         if not preview:
             board[yFrom][xFrom] = fieldEmpty
+
+    return check
+
+def check(board, player):
+    opponent = whitePlayerColor
+    if player == whitePlayerColor:
+        opponent = blackPlayerColor
+    for i in range(8):
+        for j in range(8):
+            if opponent in board[j][i]:
+                if quantumMove(board, i, j, -1, -1, True):
+                    return True
+    return False
+
+def checkmate(board, player):
+    mate = True
+    noMateMoves = []
+    opponent = whitePlayerColor
+    if player == whitePlayerColor:
+        opponent = blackPlayerColor
+    testBoard = deepcopy(board)
+
+    if check(testBoard, player):
+        for i in range(8):
+            for j in range(8):
+                if player in board[j][i]:
+                    moveRange = [0]
+                    if "K" in board[j][i]:
+                        moveRange = [-1, 0, 1]
+                    for ii in moveRange:
+                        for jj in moveRange:
+                            quantumMove(testBoard, i, j, i+ii, j+jj)
+                            if not check(testBoard, player):
+                                mate = False
+                                noMateMoves.append([i, j, i+ii, j+jj])
+                            testBoard = deepcopy(board)
+    else:
+        mate = False
+
+    return mate, noMateMoves
+
+
+
+
+
+
 
 def input2XY(s):
     x = -1
@@ -176,7 +225,17 @@ def input2XY(s):
         y = "12345678".find(s[1])
     return x, y
 
+def XY2input(x, y):
+    s = ""
+    if x in range(8) and y in range(8):
+        s = "abcdefgh"[x] + str(y + 1)
+    return s
+
 b = newBoard()
+quantumMove(b, *input2XY("e2"))
+quantumMove(b, *input2XY("e7"))
+quantumMove(b, *input2XY("d1"))
+quantumMove(b, *input2XY("d8"))
 showBoard(b)
 while True:
     s = input("In: ").lower()
@@ -186,6 +245,15 @@ while True:
         xFrom, yFrom = input2XY(s)
         xTo, yTo = input2XY(s[2:])
         if xFrom >= 0 and yFrom >= 0:
+            player = whitePlayerColor
+            if whitePlayerColor in b[yFrom][xFrom]:
+                player = blackPlayerColor
             quantumMove(b, xFrom, yFrom, xTo, yTo, ("p" in s))
-    showBoard(b)
+            m, nmm = checkmate(b, player)
+            if m:
+                print("Mate!")
+            elif nmm:
+                print("Check!")
+                print("Possible moves:", [XY2input(*move[:2]) for move in nmm])
 
+    showBoard(b)
