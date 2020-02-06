@@ -1,8 +1,8 @@
 from colorama import init, Fore, Back, Style
 import math
 
-fieldSizeX = 3
-fieldSizeY = 1
+fieldSizeX = 5
+fieldSizeY = 2
 fieldEmpty = " "
 previewMarker = "."
 # [Dark Field Color, Light Field Color]
@@ -26,7 +26,7 @@ def showBoard(board):
                     backColor = normalBackColors[(i + j) % 2]
                 printableField.extend([(backColor  + fieldEmpty) for i in range(fieldSizeX)])
                 if k == fieldSizeY // 2:
-                    printableField[fieldSizeX // 2] = field
+                    printableField[fieldSizeX // 2] = backColor + field
                 printableLine.append(printableField)
             printableBoard.append(printableLine)
 
@@ -68,8 +68,8 @@ def fieldInBoard(x, y):
     else:
         return True
 
-def quantumMove(board, x, y, preview):
-    piece = board[y][x]
+def quantumMove(board, xFrom, yFrom, xTo = -1, yTo = -1, preview = False):
+    piece = board[yFrom][xFrom]
     newPositions = []
     pieceColor = ""
     if whitePlayerColor in piece:
@@ -83,38 +83,34 @@ def quantumMove(board, x, y, preview):
 
     if "P" in piece:
         if pieceColor == whitePlayerColor:
-            if y < 7:
-                if board[y + 1][x] == fieldEmpty:
-                    newPositions.append([y + 1, x])
-                if y == 1 and board[3][x] == fieldEmpty:
-                    newPositions.append([3, x])
-                if x > 0:
-                    if blackPlayerColor in board[y + 1][x - 1]:
-                        newPositions.append([y + 1, x - 1])
-                if x < 7:
-                    if blackPlayerColor in board[y + 1][x + 1]:
-                        newPositions.append([y + 1, x + 1])
+            if yFrom < 7:
+                if board[yFrom + 1][xFrom] == fieldEmpty:
+                    newPositions.append([yFrom + 1, xFrom])
+                if yFrom == 1 and board[3][xFrom] == fieldEmpty:
+                    newPositions.append([3, xFrom])
+                if xFrom > 0:
+                    if blackPlayerColor in board[yFrom + 1][xFrom - 1]:
+                        newPositions.append([yFrom + 1, xFrom - 1])
+                if xFrom < 7:
+                    if blackPlayerColor in board[yFrom + 1][xFrom + 1]:
+                        newPositions.append([yFrom + 1, xFrom + 1])
         elif pieceColor == blackPlayerColor:
-            if y > 0:
-                if board[y - 1][x] == fieldEmpty:
-                    newPositions.append([y - 1, x])
-                if y == 6 and board[4][x] == fieldEmpty:
-                    newPositions.append([4, x])
-                if x > 0:
-                    if whitePlayerColor in board[y - 1][x - 1]:
-                        newPositions.append([y - 1, x - 1])
-                if x < 7:
-                    if whitePlayerColor in board[y - 1][x + 1]:
-                        newPositions.append([y - 1, x + 1])
-    elif "N" in piece or "K" in piece:
-        moves = ""
-        if "N" in piece:
-            moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
-        elif "K" in piece:
-            moves = [[0, 1], [0, -1], [1, 1], [1, 0], [1, -1], [-1, 1], [-1, 0], [-1, -1]]
+            if yFrom > 0:
+                if board[yFrom - 1][xFrom] == fieldEmpty:
+                    newPositions.append([yFrom - 1, xFrom])
+                if yFrom == 6 and board[4][xFrom] == fieldEmpty:
+                    newPositions.append([4, xFrom])
+                if xFrom > 0:
+                    if whitePlayerColor in board[yFrom - 1][xFrom - 1]:
+                        newPositions.append([yFrom - 1, xFrom - 1])
+                if xFrom < 7:
+                    if whitePlayerColor in board[yFrom - 1][xFrom + 1]:
+                        newPositions.append([yFrom - 1, xFrom + 1])
+    elif "N" in piece:
+        moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
         for move in moves:
-            nextX = x + move[0]
-            nextY = y + move[1]
+            nextX = xFrom + move[0]
+            nextY = yFrom + move[1]
             if fieldInBoard(nextX, nextY):
                 if board[nextY][nextX] == fieldEmpty or pieceColor not in board[nextY][nextX]:
                     newPositions.append([nextY, nextX])
@@ -128,8 +124,8 @@ def quantumMove(board, x, y, preview):
 
         for move in moves:
             cont = True
-            nextX = x
-            nextY = y
+            nextX = xFrom
+            nextY = yFrom
             while cont:
                 nextX += move[0]
                 nextY += move[1]
@@ -141,6 +137,28 @@ def quantumMove(board, x, y, preview):
                     elif pieceColor not in board[nextY][nextX]:
                         newPositions.append([nextY, nextX])
 
+    elif "K" in piece:
+        moves = [[0, 1], [0, -1], [1, 1], [1, 0], [1, -1], [-1, 1], [-1, 0], [-1, -1]]
+        possibleMoves = []
+        userMove = [xTo - xFrom, yTo - yFrom]
+        for move in moves:
+            nextX = xFrom + move[0]
+            nextY = yFrom + move[1]
+            if fieldInBoard(nextX, nextY):
+                if board[nextY][nextX] == fieldEmpty or pieceColor not in board[nextY][nextX]:
+                    if preview:
+                        newPositions.append([nextY, nextX])
+                    else:
+                        possibleMoves.append([nextY, nextX])
+        if xTo >= 0 and yTo >= 0:
+            if userMove in moves:
+                if fieldInBoard(xTo, yTo):
+                    if board[yTo][xTo] == fieldEmpty or pieceColor not in board[yTo][xTo]:
+                        newPositions.append([yTo, xTo])
+        elif not preview:
+            if len(possibleMoves) == 1:
+                newPositions.append(possibleMoves[0])
+
     if newPositions:
         for position in newPositions:
             if preview:
@@ -148,11 +166,14 @@ def quantumMove(board, x, y, preview):
             else:
                 board[position[0]][position[1]] = piece
         if not preview:
-            board[y][x] = fieldEmpty
+            board[yFrom][xFrom] = fieldEmpty
 
 def input2XY(s):
-    x = "abcdefgh".find(s[0])
-    y = "12345678".find(s[1])
+    x = -1
+    y = -1
+    if len(s) >= 2:
+        x = "abcdefgh".find(s[0])
+        y = "12345678".find(s[1])
     return x, y
 
 b = newBoard()
@@ -162,7 +183,9 @@ while True:
     if s in "new":
         b = newBoard()
     else:
-        nx, ny = input2XY(s)
-        if nx >= 0 and ny >= 0:
-            quantumMove(b, nx, ny, ("p" in s))
+        xFrom, yFrom = input2XY(s)
+        xTo, yTo = input2XY(s[2:])
+        if xFrom >= 0 and yFrom >= 0:
+            quantumMove(b, xFrom, yFrom, xTo, yTo, ("p" in s))
     showBoard(b)
+
