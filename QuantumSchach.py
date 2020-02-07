@@ -231,6 +231,7 @@ def XY2input(x, y):
         s = "abcdefgh"[x] + str(y + 1)
     return s
 
+init()
 b = newBoard()
 quantumMove(b, *input2XY("e2"))
 quantumMove(b, *input2XY("e7"))
