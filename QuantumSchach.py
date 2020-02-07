@@ -220,7 +220,12 @@ def checkmate(board, player):
     return mate, noMateMoves
 
 def chessDist(x1, y1, x2, y2):
-    return max(abs(x2 - x1), abs(y2 - y1))
+    distX = abs(x2 - x1)
+    distY = abs(y2 - y1)
+    if distX == distY:
+        return distX
+    else:
+        return math.dist([x1, y1], [x2, y2])
 
 def simpleRating(board):
     rating = 0
