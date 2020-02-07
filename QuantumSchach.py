@@ -33,8 +33,9 @@ def showBoard(board):
             printableBoard.append(printableLine)
 
     print(borderColor, "   ", " " * (fieldSizeX // 2), sep = "", end = Style.RESET_ALL)
-    for i in range(8):
+    for i in range(7):
         print(borderColor, chr(ord("A") + i) + " " * (fieldSizeX - 1), sep = "", end = Style.RESET_ALL)
+    print(borderColor, "H", " " * (fieldSizeX // 2 - 1), "   ", sep = "", end = Style.RESET_ALL)
     print("")
     for i in range(len(printableBoard)):
         print(borderColor, end = "")
@@ -53,9 +54,10 @@ def showBoard(board):
         else:
             print(borderColor, "   ", Style.RESET_ALL, sep = "")
         print(Style.RESET_ALL, end="")
-    print(borderColor, "  ", " " * (fieldSizeX // 2), sep = "", end="")
-    for i in range(8):
-        print(chr(ord("A") + i) + " " * (fieldSizeX - 1), end = "")
+    print(borderColor, "   ", " " * (fieldSizeX // 2), sep = "", end="")
+    for i in range(7):
+        print(borderColor, chr(ord("A") + i) + " " * (fieldSizeX - 1), sep = "", end = Style.RESET_ALL)
+    print(borderColor, "H", " " * (fieldSizeX // 2 - 1), "   ", sep = "", end = Style.RESET_ALL)
     print(" ", Style.RESET_ALL, sep = "")
     print("")
 
