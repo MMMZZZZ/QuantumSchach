@@ -10,9 +10,9 @@ Python >=3.8
 ## Befehle
 Befehle können groß oder klein geschrieben werden. Eckige Klammern geben optionale Teile an. Runde Klammern zeigen welche Zeichen alle an dieser Stelle stehen können.
 * `n[e[w]]`: Neues Spiel
-* `b[a[c[k]]]: Gehe zurück zur letzten Stellung.
+* `b[a[c[k]]]`: Gehe zurück zur letzten Stellung.
 * `(abcdefgh)(12345678)[(abcdefgh)(12345678)][p]`: Figur, die bewegt werden soll. Optional kann ein Ziel angegeben werden, dies wird allerdings nur beachtet, wenn der König bewegt werden soll und es mehrere Zugmöglichkeiten gibt. Das optionale `p` zeigt eine Vorschau aller möglichen Züge der gewählten Figur. 
-* `` (leere Eingabe): Führe vorgeschlagenen Zug aus. Achtung! Bei der Bewertung wird noch kein Schach oder Matt berücksichtigt!
+* ` ` (leere Eingabe): Führe vorgeschlagenen Zug aus. Achtung! Bei der Bewertung wird noch kein Schach oder Matt berücksichtigt!
 
 Beispiel einer Eingabefolge:
 * `new`: Neues Spiel
