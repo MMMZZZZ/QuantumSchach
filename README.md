@@ -25,7 +25,8 @@ Einstellungen können zu Beginn der `QuantumSchach.py` Datei festgelegt werden.
 * `previewMarker`: Keinen sichtbaren Einfluss a.k.a. warum willst du daran herumspielen? Muss in jedem Fall eindeutig sein. 
 * `previewBackColors`: Die Farben, mit denen Vorschaufelder eingefärbt werden. Normalerweise `Back.YELLOW` und `Back.LIGHTYELLOW_EX`. Sollte jeweils nur eine Farbe sein und nur den Hintergrund (`Back.*`) betreffen. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
 * `normalBackColors`: Farbe des normalen Spielfeldes. Erst die für dunkle Felder, dann die für helle. Normalerweise `Back.BLACK` und `Back.WHITE` Sollte jeweils nur eine Farbe sein und nur den Hintergrund (`Back.*`) betreffen. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
-* `(black|white)PlayerColor`: Textfarbe der Figuren beider Spieler. Normalerweise `Fore.LIGHTWHITE_EX` und `Fore.LIGHTWHITE_EX`. Sollte jeweils nur eine Farbe sein und nur die Textfarbe (`Fore.*`) betreffen. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
+* `(black|white)PlayerColor`: Textfarbe der Figuren beider Spieler. Normalerweise `Fore.LIGHTWHITE_EX` und `Fore.RED`. Sollte jeweils nur eine Farbe sein und nur die Textfarbe (`Fore.*`) betreffen. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
+* `borderColor`: Summe aller Farbparameter für die Spielfeldberandung. Normalerweise `Back.GREEN + Fore.LIGHTYELLOW_EX`. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
 
 ## Fehlende/kommende Funktionen
 * Abwechselndes Spielen erzwingen

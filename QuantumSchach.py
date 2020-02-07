@@ -10,7 +10,8 @@ previewMarker = "."
 previewBackColors = [Back.YELLOW, Back.LIGHTYELLOW_EX]
 normalBackColors = [Back.BLACK, Back.WHITE]
 whitePlayerColor = Fore.LIGHTWHITE_EX
-blackPlayerColor = Fore.LIGHTBLACK_EX
+blackPlayerColor = Fore.RED
+borderColor = Back.GREEN + Fore.LIGHTYELLOW_EX
 
 def showBoard(board):
     printableBoard = []
@@ -31,26 +32,31 @@ def showBoard(board):
                 printableLine.append(printableField)
             printableBoard.append(printableLine)
 
-    print("  ", " " * (fieldSizeX // 2), sep = "", end = "")
+    print(borderColor, "   ", " " * (fieldSizeX // 2), sep = "", end = Style.RESET_ALL)
     for i in range(8):
-        print(chr(ord("A") + i) + " " * (fieldSizeX - 1), end = "")
+        print(borderColor, chr(ord("A") + i) + " " * (fieldSizeX - 1), sep = "", end = Style.RESET_ALL)
     print("")
     for i in range(len(printableBoard)):
+        print(borderColor, end = "")
         if (i + fieldSizeY // 2 + 1) % fieldSizeY == 0:
-            print((len(printableBoard) - i - 1) // fieldSizeY + 1, " ", sep = "", end = "")
+            print(" ", (len(printableBoard) - i - 1) // fieldSizeY + 1, " ", sep = "", end = "")
         else:
-            print("  ", end = "")
+            print("   ", end = "")
+        print(Style.RESET_ALL, end = "")
+
         for field in printableBoard[len(printableBoard) - 1 - i]:
             print("".join(field), end = "")
         print(Style.RESET_ALL, end = "")
+
         if (i + fieldSizeY // 2 + 1) % fieldSizeY == 0:
-            print(" ", (len(printableBoard) - i - 1) // fieldSizeY + 1, sep = "")
+            print(borderColor, " ", (len(printableBoard) - i - 1) // fieldSizeY + 1, " ", Style.RESET_ALL, sep = "")
         else:
-            print("  ")
-    print("  ", " " * (fieldSizeX // 2), sep = "", end="")
+            print(borderColor, "   ", Style.RESET_ALL, sep = "")
+        print(Style.RESET_ALL, end="")
+    print(borderColor, "  ", " " * (fieldSizeX // 2), sep = "", end="")
     for i in range(8):
         print(chr(ord("A") + i) + " " * (fieldSizeX - 1), end = "")
-    print("")
+    print(" ", Style.RESET_ALL, sep = "")
     print("")
 
 def newBoard():
