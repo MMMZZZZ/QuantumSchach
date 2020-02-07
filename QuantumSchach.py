@@ -219,9 +219,14 @@ def checkmate(board, player):
 
     return mate, noMateMoves
 
+def chessDist(x1, y1, x2, y2):
+    return max(abs(x2 - x1), abs(y2 - y1))
+
 def simpleRating(board):
     rating = 0
     kings = []
+    whiteKing = []
+    blackKing = []
     whiteQueens = []
     blackQueens = []
     for i, line in enumerate(board):
@@ -233,15 +238,16 @@ def simpleRating(board):
                     blackQueens.append([i, j])
             elif "K" in field:
                 kings.append([i, j])
-                """if whitePlayerColor in field:
+                if whitePlayerColor in field:
                     whiteKing = [i, j]
                 else:
-                    blackKing = [i, j]"""
-    for king in kings:
-        for queen in whiteQueens:
-            rating += 10*math.exp(-math.dist(king, queen))
-        for queen in blackQueens:
-            rating -= 10*math.exp(-math.dist(king, queen))
+                    blackKing = [i, j]
+    for whiteQueen in whiteQueens:
+        rating +=  8 * math.exp(-chessDist(*whiteKing, *whiteQueen))
+        rating += 16 * math.exp(-chessDist(*blackKing, *whiteQueen))
+    for blackQueen in blackQueens:
+        rating -=  8 * math.exp(-chessDist(*blackKing, *blackQueen))
+        rating -= 16 * math.exp(-chessDist(*whiteKing, *blackQueen))
 
     return rating
 
