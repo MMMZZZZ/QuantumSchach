@@ -219,10 +219,50 @@ def checkmate(board, player):
 
     return mate, noMateMoves
 
+def simpleRating(board):
+    rating = 0
+    kings = []
+    whiteQueens = []
+    blackQueens = []
+    for i, line in enumerate(board):
+        for j, field in enumerate(line):
+            if "Q" in field:
+                if whitePlayerColor in field:
+                    whiteQueens.append([i,j])
+                else:
+                    blackQueens.append([i, j])
+            elif "K" in field:
+                kings.append([i, j])
+                """if whitePlayerColor in field:
+                    whiteKing = [i, j]
+                else:
+                    blackKing = [i, j]"""
+    for king in kings:
+        for queen in whiteQueens:
+            rating += 10*math.exp(-math.dist(king, queen))
+        for queen in blackQueens:
+            rating -= 10*math.exp(-math.dist(king, queen))
 
+    return rating
 
-
-
+def bestQueenMove(board, player, depth = 1):
+    bestMove = [-1, -1]
+    bestRating = -500
+    playerWhite = True
+    if player == blackPlayerColor:
+        bestRating = 500
+        playerWhite = False
+    for i, line in enumerate(board):
+        for j, field in enumerate(line):
+            if player in field:
+                if "K" in field or "Q" in field:
+                    testBoard = deepcopy(board)
+                    quantumMove(testBoard, j, i)
+                    rating = simpleRating(testBoard)
+                    if (rating > bestRating) == playerWhite:
+                        bestMove = [j, i]
+                        bestRating = rating
+    return  bestMove, bestRating
 
 
 def input2XY(s):
@@ -239,6 +279,7 @@ def XY2input(x, y):
         s = "abcdefgh"[x] + str(y + 1)
     return s
 
+
 init()
 b = newBoard()
 quantumMove(b, *input2XY("e2"))
@@ -246,10 +287,17 @@ quantumMove(b, *input2XY("e7"))
 quantumMove(b, *input2XY("d1"))
 quantumMove(b, *input2XY("d8"))
 showBoard(b)
+lastBoard = deepcopy(b)
+bestMove = "h4"
 while True:
     s = input("In: ").lower()
+    if not s:
+        s = bestMove
     if s in "new":
+        lastBoard = deepcopy(b)
         b = newBoard()
+    elif s in "back":
+        b = deepcopy(lastBoard)
     else:
         xFrom, yFrom = input2XY(s)
         xTo, yTo = input2XY(s[2:])
@@ -257,7 +305,12 @@ while True:
             player = whitePlayerColor
             if whitePlayerColor in b[yFrom][xFrom]:
                 player = blackPlayerColor
+            lastBoard = deepcopy(b)
             quantumMove(b, xFrom, yFrom, xTo, yTo, ("p" in s))
+            print("Rating:", "{0:.1f}".format(simpleRating(b)))
+            m, r = bestQueenMove(b, player)
+            bestMove = XY2input(*m)
+            print("Best rated move:", bestMove, "{0:.1f}".format(r))
             m, nmm = checkmate(b, player)
             if m:
                 print("Mate!")
