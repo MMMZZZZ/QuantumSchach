@@ -7,12 +7,19 @@ Python >=3.8
 
 [Colorama](https://pypi.org/project/colorama/)
 
+## Neueste Features
+* Spielerfolge ab jetzt erzwungen; weiß und schwarz müssen abwechselnd spielen
+* Illegale Züge nicht mehr durchführbar und auch nicht mehr als Vorschlag möglich.
+* Autoplay gegen den Computer
+* Angepasstes Rating. Anzahl der Damen wird berücksichtigt. Der Wert "funktioniert", der höchste Wert scheint tatsächlich für den besten (oder zumindest sehr guten) Zug zu stehen, wirkt aber nicht soo nachvollziehbar. 
+
 ## Befehle
 Befehle können groß oder klein geschrieben werden. Eckige Klammern geben optionale Teile an. Runde Klammern zeigen welche Zeichen alle an dieser Stelle stehen können.
 * `n[e[w]]`: Neues Spiel
 * `b[a[c[k]]]`: Gehe zurück zur letzten Stellung.
+* `a[u[t[o]]]`: Computer spielt ab jetzt für den aktuellen Spieler. Nach Eingabe wird der Computerzug sofort ausgeführt. Eine erneute Eingabe beendet das automatische Ausführen des bestbewerteten Zugs für den Gegner. Achtung! Der Computer kann aktuell nur mit den Damen spielen! Sollte durch ein Schach kein Damenzug möglich sein geschehen womöglich seltsame Dinge... 
 * `(abcdefgh)(12345678)[(abcdefgh)(12345678)][p]`: Figur, die bewegt werden soll. Optional kann ein Ziel angegeben werden, dies wird allerdings nur beachtet, wenn der König bewegt werden soll und es mehrere Zugmöglichkeiten gibt. Das optionale `p` zeigt eine Vorschau aller möglichen Züge der gewählten Figur. 
-* ` ` (leere Eingabe): Führe vorgeschlagenen Zug aus. Achtung! Bei der Bewertung wird noch kein Schach oder Matt berücksichtigt!
+* ` ` (leere Eingabe): Führe vorgeschlagenen Zug aus. 
 
 Beispiel einer Eingabefolge:
 * `new`: Neues Spiel
@@ -33,7 +40,6 @@ Einstellungen können zu Beginn der `QuantumSchach.py` Datei festgelegt werden.
 * `borderColor`: Summe aller Farbparameter für die Spielfeldberandung. Normalerweise `Back.GREEN + Fore.LIGHTYELLOW_EX`. Achtung: manche Farben führen zu Fehlern - liegt nicht an mir.
 
 ## Fehlende/kommende Funktionen
-* Abwechselndes Spielen erzwingen
+* Keine Illegalen Züge in der Vorschau. Obwohl nicht durchführbar, werden sie als mögliche Vorschau angezeigt. In der jetzigen Umsetzung schwierig zu ändern (warum es wohl unter dieser Überschrift steht...).
 * Bauer => Dame
-* Sperren von Zügen, die ein Schach nicht beheben.
-* Analyse der aktuellen Position
+* Tiefenanalyse der aktuellen Position. Im Moment wird nur eine mathematische Bewertung der jetztigen Position durchgeführt, ohne eine wirkliche Untersuchung der Gewinnchancen. 

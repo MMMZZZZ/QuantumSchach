@@ -194,7 +194,7 @@ def check(board, player):
 
 def checkmate(board, player):
     mate = True
-    noMateMoves = []
+    notMateMoves = []
     opponent = whitePlayerColor
     if player == whitePlayerColor:
         opponent = blackPlayerColor
@@ -212,12 +212,12 @@ def checkmate(board, player):
                             quantumMove(testBoard, i, j, i+ii, j+jj)
                             if not check(testBoard, player):
                                 mate = False
-                                noMateMoves.append([i, j, i+ii, j+jj])
+                                notMateMoves.append([i, j, i+ii, j+jj])
                             testBoard = deepcopy(board)
     else:
         mate = False
 
-    return mate, noMateMoves
+    return mate, notMateMoves
 
 def chessDist(x1, y1, x2, y2):
     distX = abs(x2 - x1)
@@ -229,7 +229,6 @@ def chessDist(x1, y1, x2, y2):
 
 def simpleRating(board):
     rating = 0
-    kings = []
     whiteKing = []
     blackKing = []
     whiteQueens = []
@@ -242,38 +241,68 @@ def simpleRating(board):
                 else:
                     blackQueens.append([i, j])
             elif "K" in field:
-                kings.append([i, j])
                 if whitePlayerColor in field:
                     whiteKing = [i, j]
                 else:
                     blackKing = [i, j]
+    whiteRating = 0
+    blackRating = 0
     for whiteQueen in whiteQueens:
-        rating +=  8 * math.exp(-chessDist(*whiteKing, *whiteQueen))
-        rating += 16 * math.exp(-chessDist(*blackKing, *whiteQueen))
+        whiteRating +=  8 * math.exp(-chessDist(*whiteKing, *whiteQueen))
+        whiteRating += 16 * math.exp(-chessDist(*blackKing, *whiteQueen))
+    whiteRating *= math.log(len(whiteQueens))
+
     for blackQueen in blackQueens:
-        rating -=  8 * math.exp(-chessDist(*blackKing, *blackQueen))
-        rating -= 16 * math.exp(-chessDist(*whiteKing, *blackQueen))
+        blackRating +=  8 * math.exp(-chessDist(*blackKing, *blackQueen))
+        blackRating += 16 * math.exp(-chessDist(*whiteKing, *blackQueen))
+    blackRating *=  math.log(len(blackQueens))
+
+    rating = whiteRating - blackRating
 
     return rating
 
-def bestQueenMove(board, player, depth = 1):
+def bestQueenMove(board, player, checkMoves = [], depth = 1):
     bestMove = [-1, -1]
     bestRating = -500
     playerWhite = True
     if player == blackPlayerColor:
         bestRating = 500
         playerWhite = False
-    for i, line in enumerate(board):
-        for j, field in enumerate(line):
-            if player in field:
-                if "K" in field or "Q" in field:
-                    testBoard = deepcopy(board)
-                    quantumMove(testBoard, j, i)
-                    rating = simpleRating(testBoard)
-                    if (rating > bestRating) == playerWhite:
-                        bestMove = [j, i]
-                        bestRating = rating
-    return  bestMove, bestRating
+    if checkMoves:
+        for move in checkMoves:
+            moveX = move[0]
+            moveY = move[1]
+            field = board[moveY][moveX]
+            moveRange = [0]
+            if "K" in board[moveY][moveX] or "Q" in board[moveY][moveX]:
+                if "K" in board[moveY][moveX]:
+                    moveRange = [-1, 0, 1]
+                for ii in moveRange:
+                    for jj in moveRange:
+                        testBoard = deepcopy(board)
+                        quantumMove(testBoard, moveX, moveY, moveX + ii, moveY + jj)
+                        rating = simpleRating(testBoard)
+                        if (rating > bestRating) == playerWhite:
+                            bestMove = [moveX, moveY]
+                            bestRating = rating
+    else:
+        for i, line in enumerate(board):
+            for j, field in enumerate(line):
+                if player in field:
+                    if "Q" in field:
+                        moveRange = [0]
+                        """if "K" in board[j][i]:
+                            moveRange = [-1, 0, 1]"""
+                        for ii in moveRange:
+                            for jj in moveRange:
+                                testBoard = deepcopy(board)
+                                quantumMove(testBoard, j, i, j + jj, i + ii)
+                                if not check(testBoard, player):
+                                    rating = simpleRating(testBoard)
+                                    if (rating > bestRating) == playerWhite:
+                                        bestMove = [j, i]
+                                        bestRating = rating
+    return bestMove, bestRating
 
 
 def input2XY(s):
@@ -298,35 +327,76 @@ quantumMove(b, *input2XY("e7"))
 quantumMove(b, *input2XY("d1"))
 quantumMove(b, *input2XY("d8"))
 showBoard(b)
+bestMoveS = "h4"
 lastBoard = deepcopy(b)
-bestMove = "h4"
+player = whitePlayerColor
+mate = False
+notMateMoves = []
+autoResponse = False
+autoPlayer = blackPlayerColor
+s = ""
 while True:
-    s = input("In: ").lower()
-    if not s:
-        s = bestMove
-    if s in "new":
+    if autoResponse and player == autoPlayer:
+        s = bestMoveS
+    else:
+        if s:
+            s = input("In: ").lower()
+        if not s:
+            s = bestMoveS
+    if "new".startswith(s):
         lastBoard = deepcopy(b)
         b = newBoard()
-    elif s in "back":
+        player = whitePlayerColor
+        mate = False
+    elif "back".startswith(s):
         b = deepcopy(lastBoard)
-    else:
+        if player == whitePlayerColor:
+            player = blackPlayerColor
+        else:
+            player = whitePlayerColor
+        mate = False
+    elif "auto".startswith(s):
+        autoResponse = not autoResponse
+        autoPlayer = player
+        print("Auto response turned ", end="")
+        if autoResponse:
+            print("on.")
+        else:
+            print("off.")
+    elif not mate:
         xFrom, yFrom = input2XY(s)
         xTo, yTo = input2XY(s[2:])
+        preview = ("p" in s)
         if xFrom >= 0 and yFrom >= 0:
-            player = whitePlayerColor
-            if whitePlayerColor in b[yFrom][xFrom]:
-                player = blackPlayerColor
-            lastBoard = deepcopy(b)
-            quantumMove(b, xFrom, yFrom, xTo, yTo, ("p" in s))
-            print("Rating:", "{0:.1f}".format(simpleRating(b)))
-            m, r = bestQueenMove(b, player)
-            bestMove = XY2input(*m)
-            print("Best rated move:", bestMove, "{0:.1f}".format(r))
-            m, nmm = checkmate(b, player)
-            if m:
-                print("Mate!")
-            elif nmm:
-                print("Check!")
-                print("Possible moves:", [XY2input(*move[:2]) for move in nmm])
-
+            if xTo < 0 and yTo < 0:
+                xTo = xFrom
+                yTo = yFrom
+            if player in b[yFrom][xFrom]:
+                legal = True
+                if notMateMoves:
+                    legal = False
+                    if preview:
+                        for i,nmm in enumerate(notMateMoves):
+                            legal |= ([xFrom, yFrom] == nmm[:2])
+                    else:
+                        for i,nmm in enumerate(notMateMoves):
+                            legal |= ([xFrom, yFrom, xTo, yTo] == nmm)
+                if legal:
+                    if not preview:
+                        if player == whitePlayerColor:
+                            player = blackPlayerColor
+                        else:
+                            player = whitePlayerColor
+                    lastBoard = deepcopy(b)
+                    quantumMove(b, xFrom, yFrom, xTo, yTo, preview)
+    print("Rating:", "{0:.1f}".format(simpleRating(b)))
+    mate, notMateMoves = checkmate(b, player)
+    if mate:
+        print("Mate!")
+    else:
+        if notMateMoves:
+            print("Check! Possible moves:", [XY2input(*move[:2]) for move in notMateMoves])
+        bestMoveL, bestMoveRating = bestQueenMove(b, player, notMateMoves)
+        bestMoveS = XY2input(*bestMoveL)
+        print("Best rated Q/K move:", bestMoveS, "{0:.1f}".format(bestMoveRating))
     showBoard(b)
