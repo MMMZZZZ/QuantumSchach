@@ -336,7 +336,7 @@ autoResponse = False
 autoPlayer = blackPlayerColor
 s = ""
 while True:
-    if autoResponse and player == autoPlayer:
+    if autoResponse and player == autoPlayer and not mate:
         s = bestMoveS
     else:
         if s:
